@@ -1,5 +1,3 @@
-<<<<<<< HEAD
-# prueb_app
 
 Aplicación de posts hecha en lenjugaje de programación Dart con SDK de flutter 3.27.3    (Flutter SDK (un SDK que incluye el framework Flutter, herramientas de compilación, y otros recursos para desarrollar aplicaciones multiplataforma)). Con una Arquitetura por capas con separación clara entre la interfaz y la lógica lo que permite ser escalable y mantenible en el tiempo, además cuenta con Provider para la gestión de estados de la aplicación.
 

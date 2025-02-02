@@ -6,71 +6,63 @@ import 'package:prueb_app/models/user.dart';
 import 'package:prueb_app/models/posts.dart';
 import 'package:prueb_app/providers/user_provider.dart';
 import 'package:prueb_app/screens/user_detail_screen.dart';
-import 'package:prueb_app/services/user_service.dart';
 
-// Mock del UserService
-class MockUserService extends Mock implements UserService {}
+class MockUserProvider extends Mock implements UserProvider {}
 
 void main() {
-  late MockUserService mockUserService;
-  late UserProvider userProvider;
+  final mockUser = User(
+    id: 1,
+    name: 'John Doe',
+    email: 'john@example.com',
+    phone: '123-456-7890',
+  );
 
-  setUp(() {
-    mockUserService = MockUserService();
-    userProvider = UserProvider(mockUserService);
-  });
+  final mockPosts = [
+    Post(id: 1, userId: 1, title: 'Test Title', body: 'Test Body'),
+  ];
 
-  testWidgets('UserDetailScreen muestra las publicaciones correctamente', (WidgetTester tester) async {
-    // Crea un usuario de prueba
-    final user = User(id: 1, name: 'Leanne Graham', email: 'leanne@example.com', phone: '123-456-7890');
+  testWidgets('Muestra datos del usuario y publicaciones', (tester) async {
+    final mockProvider = MockUserProvider();
+    when(mockProvider.getPostsByUserId(any)).thenAnswer((_) async => mockPosts);
 
-    // Configura el mock para devolver una lista de publicaciones
-    when(mockUserService.getPostsByUserId(user.id)).thenAnswer((_) async => [
-          Post(id: 1, userId: 1, title: 'Publicación 1', body: 'Cuerpo de la publicación 1'),
-          Post(id: 2, userId: 1, title: 'Publicación 2', body: 'Cuerpo de la publicación 2'),
-        ]);
-
-    // Renderiza la pantalla UserDetailScreen
     await tester.pumpWidget(
-      MaterialApp(
-        home: ChangeNotifierProvider<UserProvider>(
-          create: (_) => userProvider,
-          child: UserDetailScreen(user: user),
+      MultiProvider(
+        providers: [
+          ChangeNotifierProvider<UserProvider>.value(value: mockProvider),
+        ],
+        child: MaterialApp(
+          home: UserDetailScreen(user: mockUser),
         ),
       ),
     );
 
-    // Espera a que se complete la carga de las publicaciones
-    await tester.pumpAndSettle();
+    // Verifica datos del usuario
+    expect(find.text('John Doe'), findsOneWidget);
+    expect(find.text('Teléfono: 123-456-7890'), findsOneWidget);
+    expect(find.text('Email: john@example.com'), findsOneWidget);
 
-    // Verifica que las publicaciones se muestran correctamente
-    expect(find.text('Publicación 1'), findsOneWidget);
-    expect(find.text('Cuerpo de la publicación 1'), findsOneWidget);
-    expect(find.text('Publicación 2'), findsOneWidget);
-    expect(find.text('Cuerpo de la publicación 2'), findsOneWidget);
+    // Verifica publicaciones
+    await tester.pumpAndSettle();
+    expect(find.text('Test Title'), findsOneWidget);
+    expect(find.text('Test Body'), findsOneWidget);
   });
 
-  testWidgets('UserDetailScreen muestra un mensaje si no hay publicaciones', (WidgetTester tester) async {
-    // Crea un usuario de prueba
-    final user = User(id: 1, name: 'Leanne Graham', email: 'leanne@example.com', phone: '123-456-7890');
+  testWidgets('Muestra mensaje de error', (tester) async {
+    final mockProvider = MockUserProvider();
+    when(mockProvider.getPostsByUserId(any)).thenThrow('Error');
 
-    // Configura el mock para devolver una lista vacía de publicaciones
-    when(mockUserService.getPostsByUserId(user.id)).thenAnswer((_) async => []);
-
-    // Renderiza la pantalla UserDetailScreen
     await tester.pumpWidget(
-      MaterialApp(
-        home: ChangeNotifierProvider<UserProvider>(
-          create: (_) => userProvider,
-          child: UserDetailScreen(user: user),
+      MultiProvider(
+        providers: [
+          ChangeNotifierProvider<UserProvider>.value(value: mockProvider),
+        ],
+        child: MaterialApp(
+          home: UserDetailScreen(user: mockUser),
         ),
       ),
     );
 
-    // Espera a que se complete la carga de las publicaciones
     await tester.pumpAndSettle();
-
-    // Verifica que se muestra el mensaje "No hay publicaciones"
-    expect(find.text('No hay publicaciones'), findsOneWidget);
+    expect(find.text('Error al cargar las publicaciones'), findsOneWidget);
   });
 }

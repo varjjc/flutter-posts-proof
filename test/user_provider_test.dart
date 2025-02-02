@@ -3,43 +3,51 @@ import 'package:mockito/mockito.dart';
 import 'package:prueb_app/models/user.dart';
 import 'package:prueb_app/providers/user_provider.dart';
 import 'package:prueb_app/services/user_service.dart';
+import 'package:prueb_app/repositories/user_repository.dart';
 
-// Mock del UserService
 class MockUserService extends Mock implements UserService {}
+class MockUserRepository extends Mock implements UserRepository {}
 
 void main() {
   late UserProvider userProvider;
   late MockUserService mockUserService;
+  late MockUserRepository mockUserRepository;
+
+  final mockUsers = [
+    User(id: 1, name: 'John', email: 'john@test.com', phone: '123'),
+  ];
 
   setUp(() {
     mockUserService = MockUserService();
+    mockUserRepository = MockUserRepository();
     userProvider = UserProvider(mockUserService);
   });
 
-  group('UserProvider', () {
-    test('loadUsers carga los usuarios correctamente', () async {
-      // Configura el mock para devolver una lista de usuarios
-      when(mockUserService.getUsers()).thenAnswer((_) async => [
-            User(id: 1, name: 'Leanne Graham', email: 'leanne@example.com', phone: '123-456-7890'),
-          ]);
+  test('loadUsers() carga usuarios desde el repositorio', () async {
+    when(mockUserRepository.getUsers()).thenAnswer((_) async => mockUsers);
 
-      // Llama al método loadUsers
-      await userProvider.loadUsers();
+    await userProvider.loadUsers();
+    expect(userProvider.users, mockUsers);
+    verify(mockUserRepository.getUsers()).called(1);
+  });
 
-      // Verifica que los usuarios se cargaron correctamente
-      expect(userProvider.users.length, 1);
-      expect(userProvider.users[0].name, 'Leanne Graham');
-    });
+  test('loadUsers() carga desde el servicio si el repositorio está vacío', () async {
+    when(mockUserRepository.getUsers()).thenAnswer((_) async => []);
+    when(mockUserService.getUsers()).thenAnswer((_) async => mockUsers);
+    when(mockUserRepository.saveUsers(any)).thenAnswer((_) async => true);
 
-    test('loadUsers maneja errores correctamente', () async {
-      // Configura el mock para lanzar una excepción
-      when(mockUserService.getUsers()).thenThrow(Exception('Error de red'));
+    await userProvider.loadUsers();
+    expect(userProvider.users, mockUsers);
+    verify(mockUserService.getUsers()).called(1);
+    verify(mockUserRepository.saveUsers(mockUsers)).called(1);
+  });
 
-      // Llama al método loadUsers
-      await userProvider.loadUsers();
+  test('getPostsByUserId() retorna posts del servicio', () async {
+    final mockPosts = [Post(id: 1, userId: 1, title: 'Test', body: 'Test')];
+    when(mockUserService.getPostsByUserId(any)).thenAnswer((_) async => mockPosts);
 
-      // Verifica que el estado de error se maneja correctamente
-      expect(userProvider.users.isEmpty, true);
-    });
+    final result = await userProvider.getPostsByUserId(1);
+    expect(result, mockPosts);
+    verify(mockUserService.getPostsByUserId(1)).called(1);
   });
 }
