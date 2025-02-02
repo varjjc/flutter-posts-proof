@@ -21,7 +21,7 @@ class UserProvider with ChangeNotifier{
 
   Future<void> loadUsers() async {
     _isLoading = true;
-    notifyListeners();
+    notifyListeners();  
 
     try {
       _users = await _userRepository.getUsers();
@@ -30,6 +30,8 @@ class UserProvider with ChangeNotifier{
         _users = await _userService.getUsers();
         await _userRepository.saveUsers(_users);
       }
+    } catch (e) {
+      'Failed to load users: $e';
     } finally {
       _isLoading = false;
       notifyListeners();
