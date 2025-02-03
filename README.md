@@ -32,6 +32,11 @@ widgets/ => Carpeta que almacena los elementos visuales que sirven para crear la
 
 screens/ => Son las pantallas que representan cada vista de la aplicación.
 
+*Por fuera de la raíz lib se encuentran los test.
+
+test/ => Cuenta con los archivos de test unitarios de algunas de las partes más importantes del código como son user_provider_test.dart
+user_detail_screen_test.dart y user_card_test.dart. En estos se usan simulaciones de los repositories, services y provider para que se ejecute todo en la misma prueba sin necesidad de hacer conexiones a apis. Se usaron las herramientas que ya trae flutter para hacer pruebas que provee la dependencia flutter_test.
+
 
 Cuenta con las siguientes dependencias:
 
@@ -77,14 +82,6 @@ Ejemplo de uso:
 
 Guardar archivos en una carpeta específica en el dispositivo (como imágenes, archivos de configuración, etc.).
 Acceder a rutas del sistema de archivos para guardar datos de manera más estructurada.
-
-7. mockito: ^5.3.2
-mockito: Mockito es una librería utilizada en pruebas unitarias para crear mocks o espías de clases y objetos. Esto te permite simular el comportamiento de ciertas dependencias externas (como servicios web o bases de datos) durante las pruebas, sin necesidad de realizar operaciones reales. Es muy útil para pruebas unitarias donde quieres aislar la lógica de una clase o función.
-
-Ejemplo de uso:
-
-Simular el comportamiento de una API o base de datos en pruebas.
-Verificar que las funciones se llamen de manera correcta sin necesidad de acceder a un backend real.
 
 
 

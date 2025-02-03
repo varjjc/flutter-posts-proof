@@ -7,11 +7,12 @@ import '../repositories/user_repository.dart';
 class UserProvider with ChangeNotifier{
 
   final UserService _userService;
+  final UserRepository _userRepository;
 
-  UserProvider(this._userService);
+  UserProvider(this._userService, this._userRepository);
 
   
-  final UserRepository _userRepository = UserRepository();
+  
 
   List<User> _users = [];
   List<User> get users => _users;

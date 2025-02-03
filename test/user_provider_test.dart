@@ -5,7 +5,7 @@ import 'package:prueb_app/providers/user_provider.dart';
 import 'package:prueb_app/services/user_service.dart';
 import 'package:prueb_app/repositories/user_repository.dart';
 
-// FakeUserService: Simula la respuesta de la API de usuarios
+
 class FakeUserService implements UserService {
   @override
   String get baseUrl => ''; // Implementación requerida
@@ -23,7 +23,7 @@ class FakeUserService implements UserService {
 
 
 
-// FakeUserRepository: Simula una base de datos local
+
 class FakeUserRepository implements UserRepository {
   List<User> users = [];
 
@@ -39,15 +39,19 @@ class FakeUserRepository implements UserRepository {
 void main() {
   late UserProvider provider;
   late FakeUserService fakeUserService;
-
+  late FakeUserRepository fakeUserRepository;
   setUp(() {
     fakeUserService = FakeUserService();
-    provider = UserProvider(fakeUserService);
+    fakeUserRepository = FakeUserRepository();
+    provider = UserProvider(fakeUserService, fakeUserRepository);
+    
   });
 
   test('Carga usuarios correctamente desde el servicio', () async {
     await provider.loadUsers();
-    print('Usuarios cargados: ${provider.users.length}'); // Depuración
+
+
+    print('Usuarios cargados: ${provider.users.length}');
     expect(provider.users.length, 1);
     expect(provider.users[0].name, 'Fake User');
   });
